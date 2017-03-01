@@ -50,6 +50,7 @@ void *cliSvr(void *arg)
     Response *response = validateRequest->process(request);
 
     /* Send response to the client */
+    printf("Server:: Sending response: %s\n",response->getResponseString().c_str());
     n = write(sockfd,response->getResponseString().data(),response->getResponseString().size());
 
     if (n < 0)  {

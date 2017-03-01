@@ -92,9 +92,11 @@ Request::Request(char *buffer)
     {
         requestLine = requestLines.front();
 
-        /* headers end after a line with only \r\n */
-        if(requestLine == REQ_DELIMITER)
+        /* headers end after an empty line */
+        if(requestLine.empty()) {
+            requestLines.pop();
             break;
+        }
 
         this->headers.push_back(requestLine);
         requestLines.pop();

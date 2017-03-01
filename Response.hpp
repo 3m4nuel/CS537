@@ -32,7 +32,9 @@ class Response
         string statusLine;
         string headerLines;
         string content;
+        string contentType;
         string generateStatusLine();
+        void setContentType(string filePath);
     public:
         void setStatus(STATUS status);
         STATUS getStatus();

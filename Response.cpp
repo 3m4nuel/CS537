@@ -44,11 +44,29 @@ void Response::setContent(string contentPath)
         this->content = string(fileDataBuff);
         delete fileDataBuff;
     }
+    /* Set content type to be set on response header line */
+    setContentType(contentPath);
 }
 
 string Response::getContent()
 {
     return Response::content;
+}
+
+void Response::setContentType(string filePath)
+{
+    size_t pos = filePath.find(".");
+    string fileExtension = filePath.substr(pos, filePath.size());
+
+    if(fileExtension.compare(".html") == 0) {
+        this->contentType = "text/html";
+    }
+    else if(fileExtension.compare(".jpg") == 0) {
+        this->contentType = "image/jpeg";
+    }
+    else {
+        this->contentType = "";
+    }
 }
 
 void Response::setHeaderLines()
@@ -75,8 +93,7 @@ void Response::setHeaderLines()
     if(!this->content.empty()) {
         this->addToHeaderLine("Content-Length: " + contentSizeStream.str() + REQ_DELIMITER);
     }
-
-    this->addToHeaderLine("Content-Type: text/html; charset=iso-8859-1" + REQ_DELIMITER);
+    this->addToHeaderLine("Content-Type: " + this->contentType + REQ_DELIMITER);
     this->addToHeaderLine("Connection: Closed" + REQ_DELIMITER);
     this->addToHeaderLine(REQ_DELIMITER);
 

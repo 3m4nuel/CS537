@@ -42,7 +42,7 @@ Response *PostResponseGenerator::generateResponse(Request *request)
             fileToWrite << request->getBody().c_str();
             fileToWrite.close();
             response->setStatus(OK);
-            response->setContent(string(getenv("PWD")) + "/getfile.html");
+            response->setContent(string(getenv("PWD")) + "/fileposted.html");
         }
     }
     else {
