@@ -7,6 +7,24 @@
 
 using namespace std;
 
+inline string translatePath(string path)
+{
+    if(path.compare("/") == 0) {
+        return "/index.html";
+    }
+
+    return path;
+}
+
+inline string translateHttp(string http)
+{
+    if(http.empty()) {
+        return "HTTP/1.0";
+    }
+
+    return http;
+}
+
 Request::Request(char *buffer)
 {
     queue<string> requestLines;
@@ -51,17 +69,21 @@ Request::Request(char *buffer)
     /* Extract the requested path that is expected to be the second string within the request line. */
     pos = requestLine.find(REQ_LINE_DELIMITER);
 
+    /* Set defaults if nothing else found */
     if(pos == string::npos) {
+        string basePath(getenv("PWD"));
+        this->path = basePath + translatePath(requestLine);
+        this->http = translateHttp("");
         return;
     }
 
-    requestSubStr = requestLine.substr(0, pos);
+    requestSubStr = translatePath(requestLine.substr(0, pos));
     string basePath(getenv("PWD"));
     this->path = basePath + requestSubStr;
     requestLine.erase(0, pos + REQ_LINE_DELIMITER.length());
 
     /* Extract the http version that is expected to be the third (remaining) string within the request line. */
-    this->http = requestLine;
+    this->http = translateHttp(requestLine);
     requestLine.clear();
 
     /* Extract headers */

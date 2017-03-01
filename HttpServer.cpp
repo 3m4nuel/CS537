@@ -87,12 +87,20 @@ int main(int argc, char *argv[])
      int sockfd, clisockfd, port;
      socklen_t clilen;
      struct sockaddr_in serv_addr, cli_addr;
+     string inputPort;
 
      pthread_t  tid;
 
-     if (argc < 2) {
+     if (argc > 2) {
          fprintf(stderr,"Usage: %s <port>\n", argv[0]);
          exit(1);
+     }
+     else if(argc < 2) {
+        printf("Start up:: No port defined. Setting default port: 8080");
+        inputPort = "8080";
+     }
+     else {
+        inputPort = string(argv[1]);
      }
 
      /* Open a TCP socket connection */
@@ -104,7 +112,7 @@ int main(int argc, char *argv[])
      }
 
      bzero((char *) &serv_addr, sizeof(serv_addr));
-     port = atoi(argv[1]);
+     port = atoi(inputPort.c_str());
      serv_addr.sin_family = AF_INET;
      serv_addr.sin_addr.s_addr = INADDR_ANY;
      serv_addr.sin_port = htons(port);
