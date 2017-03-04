@@ -1,3 +1,4 @@
+#include "HttpServer.hpp"
 #include "Response.hpp"
 #include "Request.hpp"
 
@@ -55,18 +56,7 @@ string Response::getContent()
 
 void Response::setContentType(string filePath)
 {
-    size_t pos = filePath.find(".");
-    string fileExtension = filePath.substr(pos, filePath.size());
-
-    if(fileExtension.compare(".html") == 0) {
-        this->contentType = "text/html";
-    }
-    else if(fileExtension.compare(".jpg") == 0) {
-        this->contentType = "image/jpeg";
-    }
-    else {
-        this->contentType = "";
-    }
+    this->contentType = getContentType(filePath);
 }
 
 void Response::setHeaderLines()

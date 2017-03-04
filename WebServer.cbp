@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="7777" />
+				<Option parameters="7778" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -35,6 +35,8 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="HttpServer.cpp" />
+		<Unit filename="HttpServer.hpp" />
+		<Unit filename="HttpServerMain.cpp" />
 		<Unit filename="Request.cpp" />
 		<Unit filename="Request.hpp" />
 		<Unit filename="RequestProcessor.cpp" />
@@ -43,16 +45,6 @@
 		<Unit filename="Response.hpp" />
 		<Unit filename="ResponseGenerator.cpp" />
 		<Unit filename="ResponseGenerator.hpp" />
-		<Unit filename="badrequest.html" />
-		<Unit filename="fileposted.html" />
-		<Unit filename="filetopostto.html" />
-		<Unit filename="getfile.html" />
-		<Unit filename="index.html" />
-		<Unit filename="internalerror.html" />
-		<Unit filename="notfound.html" />
-		<Unit filename="notimplemented.html" />
-		<Unit filename="pic01.jpg" />
-		<Unit filename="versionnotsupported.html" />
 		<Extensions>
 			<code_completion />
 			<debugger />

@@ -1,3 +1,4 @@
+#include "HttpServer.hpp"
 #include "RequestProcessor.hpp"
 #include "ResponseGenerator.hpp"
 #include "Request.hpp"
@@ -56,17 +57,17 @@ Response *ValidateRequestProcessor::handleRequest(Request *request)
     if(!isValuesExist(request))
     {
         response->setStatus(BADREQUEST);
-        response->setContent(string(getenv("PWD")) + "/badrequest.html");
+        response->setContent(SERVER_BASE_PATH + WEBPAGE_REL_PATH + "/badrequest.html");
     }
     else if(!isPathExist(request->getPath()))
     {
         response->setStatus(NOTFOUND);
-        response->setContent(string(getenv("PWD")) + "/notfound.html");
+        response->setContent(SERVER_BASE_PATH + WEBPAGE_REL_PATH +  "/notfound.html");
     }
     else if(!isValidHttpVersion(request->getHttp()))
     {
         response->setStatus(VERNOTSUPPORTED);
-        response->setContent(string(getenv("PWD")) + "/versionnotsupported.html");
+        response->setContent(SERVER_BASE_PATH + WEBPAGE_REL_PATH +  "/versionnotsupported.html");
     }
 
     response->setHeaderLines();

@@ -1,3 +1,4 @@
+#include "HttpServer.hpp"
 #include "ResponseGenerator.hpp"
 #include "Request.hpp"
 
@@ -23,7 +24,7 @@ Response *GetResponseGenerator::generateResponse(Request *request)
     /* If body was not set successfully an error response is sent back */
     else {
         response->setStatus(INTERNALERROR);
-        response->setContent(string(getenv("PWD")) + "/internalerror.html");
+        response->setContent(SERVER_BASE_PATH + WEBPAGE_REL_PATH + "/internalerror.html");
     }
 
     response->setHeaderLines();
@@ -42,12 +43,12 @@ Response *PostResponseGenerator::generateResponse(Request *request)
             fileToWrite << request->getBody().c_str();
             fileToWrite.close();
             response->setStatus(OK);
-            response->setContent(string(getenv("PWD")) + "/fileposted.html");
+            response->setContent(SERVER_BASE_PATH + WEBPAGE_REL_PATH + "/fileposted.html");
         }
     }
     else {
         response->setStatus(BADREQUEST);
-        response->setContent(string(getenv("PWD")) + "/badrequest.html");
+        response->setContent(SERVER_BASE_PATH + WEBPAGE_REL_PATH + "/badrequest.html");
     }
 
     response->setHeaderLines();
@@ -77,7 +78,7 @@ Response *HeadResponseGenerator::generateResponse(Request *request)
     }
     else {
         response->setStatus(INTERNALERROR);
-        response->setContent(string(getenv("PWD")) + "/internalerror.html");
+        response->setContent(SERVER_BASE_PATH + WEBPAGE_REL_PATH + "/internalerror.html");
     }
 
     response->setHeaderLines();
@@ -88,7 +89,7 @@ Response *DefaultResponseGenerator::generateResponse(Request *request)
 {
     Response *response = new Response();
     response->setStatus(NOTIMPLEMENTED);
-    response->setContent(string(getenv("PWD")) + "/notimplemented.html");
+    response->setContent(SERVER_BASE_PATH + WEBPAGE_REL_PATH + "/notimplemented.html");
     response->setHeaderLines();
     return response;
 }

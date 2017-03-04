@@ -1,3 +1,4 @@
+#include "HttpServer.hpp"
 #include "Request.hpp"
 #include <cstdlib>
 #include <cstring>
@@ -71,15 +72,13 @@ Request::Request(char *buffer)
 
     /* Set defaults if nothing else found */
     if(pos == string::npos) {
-        string basePath(getenv("PWD"));
-        this->path = basePath + translatePath(requestLine);
+        this->path = SERVER_BASE_PATH + getFileRelativePath(requestLine) + translatePath(requestLine);
         this->http = translateHttp("");
         return;
     }
 
     requestSubStr = translatePath(requestLine.substr(0, pos));
-    string basePath(getenv("PWD"));
-    this->path = basePath + requestSubStr;
+    this->path = SERVER_BASE_PATH + getFileRelativePath(requestSubStr) + requestSubStr;
     requestLine.erase(0, pos + REQ_LINE_DELIMITER.length());
 
     /* Extract the http version that is expected to be the third (remaining) string within the request line. */
