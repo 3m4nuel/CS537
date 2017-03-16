@@ -23,6 +23,8 @@ Response *GetResponseGenerator::generateResponse(Request *request)
         fileToRead.read(response->getBody(), fileSize);
         fileToRead.close();
 
+        cout << "Response File Size: " << sizeof(response->getBody());
+
         /* Sent response header lines */
         response->setStatus(OK);
         time_t currentTime = time(0);
