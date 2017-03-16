@@ -4,8 +4,6 @@
 #include "Request.hpp"
 #include "Response.hpp"
 
-const string VALID_HTTP = "HTTP/1.0";
-
 class RequestProcessor
 {
     private:

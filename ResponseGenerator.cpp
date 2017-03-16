@@ -1,6 +1,8 @@
+#include "HttpServer.hpp"
 #include "ResponseGenerator.hpp"
 #include "Request.hpp"
 
+#include <cstdlib>
 #include <ctime>
 #include <fstream>
 #include <iostream>
@@ -12,37 +14,26 @@ using namespace std;
 Response *GetResponseGenerator::generateResponse(Request *request)
 {
     Response *response = new Response();
-    long fileSize;
-    ifstream fileToRead (request->getPath().c_str());
-    if(fileToRead.is_open())
-    {
-        /* Get file data */
-        fileSize = fileToRead.tellg();
-        fileToRead.seekg(0, ios::beg);
-        response->setBody(new char[fileSize]);
-        fileToRead.read(response->getBody(), fileSize);
-        fileToRead.close();
+    /* Sets up response content */
+    response->setContent(request->getPath());
 
+<<<<<<< HEAD
         cout << "Response File Size: " << sizeof(response->getBody());
 
         /* Sent response header lines */
+=======
+    /*  Check whether content was successful set */
+    if(!response->getContent().empty()) {
+>>>>>>> 73773de59e9be7926b5a6105bc690588a881daf5
         response->setStatus(OK);
-        time_t currentTime = time(0);
-        stringstream timeStream;
-        timeStream << ctime(&currentTime);
-        response->addToHeaderLine("Connection: Closed" + REQ_DELIMITER);
-        response->addToHeaderLine("Date: " + timeStream.str());
-        response->addToHeaderLine("Server: Customized" + REQ_DELIMITER);
-        response->addToHeaderLine("Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT" + REQ_DELIMITER);
-        ostringstream convertIntToString;
-        convertIntToString << sizeof(response->getBody());
-        response->addToHeaderLine("Content-Length: " + convertIntToString.str() + REQ_DELIMITER);
-        response->addToHeaderLine("Content-Type: text/html" + REQ_DELIMITER);
-        response->addToHeaderLine(REQ_DELIMITER);
-        return response;
+    }
+    /* If body was not set successfully an error response is sent back */
+    else {
+        response->setStatus(INTERNALERROR);
+        response->setContent(SERVER_BASE_PATH + WEBPAGE_REL_PATH + "/internalerror.html");
     }
 
-    response->setStatus(INTERNALERROR);
+    response->setHeaderLines();
     return response;
 }
 
@@ -58,23 +49,54 @@ Response *PostResponseGenerator::generateResponse(Request *request)
             fileToWrite << request->getBody().c_str();
             fileToWrite.close();
             response->setStatus(OK);
-            return response;
+            response->setContent(SERVER_BASE_PATH + WEBPAGE_REL_PATH + "/fileposted.html");
         }
     }
+    else {
+        response->setStatus(BADREQUEST);
+        response->setContent(SERVER_BASE_PATH + WEBPAGE_REL_PATH + "/badrequest.html");
+    }
 
-    response->setStatus(INTERNALERROR);
+    response->setHeaderLines();
     return response;
 }
 
 Response *HeadResponseGenerator::generateResponse(Request *request)
 {
-    return new Response();
+    Response *response = new Response();
+
+    /* Sets up response content information*/
+    ifstream fileToRead (request->getPath().c_str());
+    if(fileToRead.is_open())
+    {
+        /* Get content size */
+        fileToRead.seekg(0, ios::end);
+        long fileSize = fileToRead.tellg();
+
+        /* Set content-length size */
+        stringstream contentSizeStream;
+        contentSizeStream << fileSize;
+        response->addToHeaderLine("Content-Length: " + contentSizeStream.str() + REQ_DELIMITER);
+        contentSizeStream.str(string());
+        contentSizeStream.clear();
+
+        response->setStatus(OK);
+    }
+    else {
+        response->setStatus(INTERNALERROR);
+        response->setContent(SERVER_BASE_PATH + WEBPAGE_REL_PATH + "/internalerror.html");
+    }
+
+    response->setHeaderLines();
+    return response;
 }
 
 Response *DefaultResponseGenerator::generateResponse(Request *request)
 {
     Response *response = new Response();
     response->setStatus(NOTIMPLEMENTED);
+    response->setContent(SERVER_BASE_PATH + WEBPAGE_REL_PATH + "/notimplemented.html");
+    response->setHeaderLines();
     return response;
 }
 

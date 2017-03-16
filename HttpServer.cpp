@@ -1,141 +1,36 @@
-/* A simple server in the internet domain using TCP
-   The port number is passed as an argument test*/
+#include "HttpServer.hpp"
 #include <string>
-#include <iostream>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+using namespace std;
 
-#include "Request.hpp"
-#include "RequestProcessor.hpp"
-#include "Response.hpp"
-
-
-void *cliSvr(void *arg)
+string getFileRelativePath(string &fileName)
 {
-    int   n, sockfd;
-    char  buffer[256];
+    size_t pos = fileName.find(".");
+    string fileExtension = fileName.substr(pos, fileName.size());
 
-    bzero(buffer,256);
-
-    sockfd = *(int *)arg;
-
-    /* Wait for request from client */
-    n = read(sockfd,buffer,255);
-    if (n < 0) {
-        fprintf(stderr, "Error reading from socket, errno = %d (%s)\n",
-                errno, strerror(errno));
-        close(sockfd);
-        return NULL;
+    if(fileExtension.compare(".html") == 0 || fileName.compare("/") == 0) {
+        return WEBPAGE_REL_PATH;
     }
-
-    printf("Server:: Here is the message: %s\n",buffer);
-
-    /* Process request */
-    Request *request = new Request(buffer);
-
-    /* Set up processors to process request */
-    RequestProcessor *validateRequest = new ValidateRequestProcessor();
-    RequestProcessor *processRequest = new ProcessRequestProcessor();
-    validateRequest->setNextProcessor(processRequest);
-
-    /* Obtain response from processed request */
-    Response *response = validateRequest->process(request);
-
-    /* Send header to the client */
-    n = send(sockfd,response->getResponseString().data(),response->getResponseString().size(), 0);
-
-    if (n < 0)  {
-        fprintf(stderr, "Error writing to socket, errno = %d (%s)\n",
-                errno, strerror(errno));
-        close(sockfd);
-        return NULL;
+    else if(fileExtension.compare(".jpg") == 0) {
+        return IMAGE_REL_PATH;
     }
-
-    /* Send body to the client */
-    /*if(sizeof(response->getBody()) > 0) {
-        n = send(sockfd,response->getBody().,sizeof(response->getBody()), 0);
-
-        if (n < 0)  {
-            fprintf(stderr, "Error writing to socket, errno = %d (%s)\n",
-                    errno, strerror(errno));
-            close(sockfd);
-            return NULL;
-        }
-    }*/
-
-     /* Clear resources */
-    delete request;
-    delete validateRequest;
-    delete processRequest;
-    delete response;
-
-    close(sockfd);
-
-    return NULL;
+    else {
+        return "";
+    }
 }
 
-
-int main(int argc, char *argv[])
+string getContentType(string &fileName)
 {
-     int sockfd, clisockfd, port;
-     socklen_t clilen;
-     struct sockaddr_in serv_addr, cli_addr;
+    size_t pos = fileName.find(".");
+    string fileExtension = fileName.substr(pos, fileName.size());
 
-     pthread_t  tid;
-
-     if (argc < 2) {
-         fprintf(stderr,"Usage: %s <port>\n", argv[0]);
-         exit(1);
-     }
-
-     /* Open a TCP socket connection */
-     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-     if (sockfd < 0) {
-        fprintf(stderr, "Error opening socket, errno = %d (%s) \n",
-                errno, strerror(errno));
-        return -1;
-     }
-
-     bzero((char *) &serv_addr, sizeof(serv_addr));
-     port = atoi(argv[1]);
-     serv_addr.sin_family = AF_INET;
-     serv_addr.sin_addr.s_addr = INADDR_ANY;
-     serv_addr.sin_port = htons(port);
-     if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-         fprintf(stderr, "Error bind to socket, erron = %d (%s) \n",
-                 errno, strerror(errno));
-         return -1;
-     }
-
-     /* Setup passive listening socket for client connections */
-     listen(sockfd, 5);
-
-     /* Wait for incoming socket connection requests */
-     while (1) {
-         clilen = sizeof(cli_addr);
-         clisockfd = accept(sockfd,
-                            (struct sockaddr *) &cli_addr,
-                            &clilen);
-
-         if (clisockfd < 0) {
-             fprintf(stderr, "Error accepting socket connection request, errno = %d (%s) \n",
-                     errno, strerror(errno));
-             break;
-         }
-
-         /* Create thread for client requests/responses */
-         pthread_create(&tid, NULL, &cliSvr, (void *)&clisockfd);
-     }
-
-     close(sockfd);
-
-     return 0;
+    if(fileExtension.compare(".html") == 0) {
+        return "text/html";
+    }
+    else if(fileExtension.compare(".jpg") == 0) {
+        return "image/jpeg";
+    }
+    else {
+        return "";
+    }
 }
