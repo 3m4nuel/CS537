@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <time.h>
 #include <unistd.h>
+#include <rdt.h>
 
 typedef struct {
     unsigned short cmd;
@@ -42,7 +43,7 @@ int main(int argc, char *argv[])
     }
 
     /* Create the socket */
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    sockfd = rdt_socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0) {
        fprintf(stderr, "%s : cannot create socket, errno = %d, (%s) \n", argv[0], errno, strerror(errno));
        return -1;
@@ -56,7 +57,7 @@ int main(int argc, char *argv[])
     saddr.sin_port = htons(atoi(argv[2]));
 
     /* bind service to a port */
-    if (bind(sockfd, (struct sockaddr *)&saddr, sizeof(saddr)) == -1) {
+    if (rdt_bind(sockfd, (struct sockaddr *)&saddr, sizeof(saddr)) == -1) {
         fprintf(stderr, "%s: unable to bind to port '%s', errno = %d (%s) \n", argv[0], argv[2], errno, strerror(errno));
         close(sockfd);
         return -1;
@@ -65,7 +66,7 @@ int main(int argc, char *argv[])
     while (1) {
         /* Waiting for a join request from a client */
         slen = sizeof(caddr);
-        if (recvfrom(sockfd, (void *)&reqHdr, sizeof(SCS_HDR), 0, (struct sockaddr *)&caddr, &slen) == -1) {
+        if (rdt_recv(sockfd, (void *)&reqHdr, sizeof(SCS_HDR), 0, (struct sockaddr *)&caddr, &slen) == -1) {
             fprintf(stderr, "%s: error on recvfrom, errno = %d (%s) \n", argv[0], errno, strerror(errno));
             continue;
         }
@@ -74,13 +75,13 @@ int main(int argc, char *argv[])
         rspHdr.pldlen = 0;
 
         /* Send password response to client */
-        if (sendto(sockfd, (void *)&rspHdr, sizeof(SCS_HDR), 0, (struct sockaddr *)&caddr, slen) == -1) { 
-            fprintf(stderr, "Error sending to client, errno = %d (%s) \n", 
+        if (rdt_sendto(sockfd, (void *)&rspHdr, sizeof(SCS_HDR), 0, (struct sockaddr *)&caddr, slen) == -1) {
+            fprintf(stderr, "Error sending to client, errno = %d (%s) \n",
             errno, strerror(errno));
         }
 
         /* Wait for password response */
-        if (recvfrom(sockfd, (void *)&scsRsp, sizeof(SCS_RSP), 0, (struct sockaddr *)&caddr, &slen) == -1) {
+        if (rdt_recv(sockfd, (void *)&scsRsp, sizeof(SCS_RSP), 0, (struct sockaddr *)&caddr, &slen) == -1) {
             fprintf(stderr, "%s: error on recvfrom, errno = %d (%s) \n", argv[0], errno, strerror(errno));
             continue;
         }
@@ -91,9 +92,9 @@ int main(int argc, char *argv[])
 
         if (strcmp(scsRsp.passwd, pwd) == 0) {
             rspHdr.cmd = 4;
-        }        
+        }
 
-        if (sendto(sockfd, (void *)&rspHdr, sizeof(SCS_HDR), 0, (struct sockaddr *)&caddr, slen) == -1) {
+        if (rdt_sendto(sockfd, (void *)&rspHdr, sizeof(SCS_HDR), 0, (struct sockaddr *)&caddr, slen) == -1) {
             fprintf(stderr, "Error sending to client, errno = %d (%s)\n",
             errno, strerror(errno));
         }
